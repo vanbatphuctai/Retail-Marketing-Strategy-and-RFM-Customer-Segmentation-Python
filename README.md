@@ -90,19 +90,9 @@ By applying RFM, businesses can:
 
 The dataset consists of two sheets:
 
-- **Sheet 1 – E-commerce Retail**  
-  Contains transaction-level data including:
-  - Invoice number  
-  - Product details  
-  - Customer ID  
-  - Quantity  
-  - Price  
-  - Invoice date  
+- **Sheet 1 – E-commerce Retail**  – Contains transaction-level data, including order details, customer IDs, and purchase information.
 
-- **Sheet 2 – Segmentation**  
-  Contains:
-  - RFM scores  
-  - Customer segment labels  
+- **Sheet 2 – Segmentation**  – Stores customer segments along with their RFM scores.
 
 ---
 
