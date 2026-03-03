@@ -86,7 +86,7 @@ By applying RFM, businesses can:
 
 ## 📂 Data Structure & Relationships
 
-### 1️⃣ Tables Used
+### 1. Tables Used
 
 The dataset consists of two sheets:
 
@@ -96,7 +96,7 @@ The dataset consists of two sheets:
 
 ---
 
-### 2️⃣ Table Schema & Data Snapshot
+### 2. Table Schema & Data Snapshot
 
 #### 📌 Sheet 1: E-commerce Retail
 
