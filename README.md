@@ -1,4 +1,4 @@
-# 🛒 Retail Marketing Strategy & RFM Customer Segmentation | Python
+# 🛒 Retail Customer Segmentation using RFM Analysis in Global Superstore | Python
 
 **Author:** Van Bat Phuc Tai  
 **Tools Used:** Python (Pandas, NumPy, Matplotlib, Seaborn)
