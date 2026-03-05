@@ -157,7 +157,7 @@ The dataset consists of two sheets:
 #### 📋 Table Schema: E-commerce Retail
 
 <details>
-<summary>📂 **Dataset Schema** (Click to expand)</summary>
+<summary>📂 Dataset Schema (Click to expand)</summary>
 
 <br>
 
@@ -181,7 +181,7 @@ The dataset consists of two sheets:
 #### 📊 Customer Segmentation & RFM Scores
 
 <details>
-<summary>📊 **RFM Segmentation Mapping** (Click to expand)</summary>
+<summary>📊 RFM Segmentation Mapping (Click to expand)</summary>
 
 <br>
 
@@ -372,7 +372,7 @@ print(missing_summary)
 
 [Out 7]:
 
-<img width="900" alt="image" src="https://github.com/user-attachments/assets/91806737-394f-46b2-bb3b-b024ac57aad7" />
+<img width="550" alt="image" src="https://github.com/user-attachments/assets/91806737-394f-46b2-bb3b-b024ac57aad7" />
 
 
 #### Investigation Findings
