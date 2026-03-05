@@ -324,18 +324,15 @@ To ensure revenue accuracy, invalid records were removed using business logic ru
 ```python
 # 1. Remove canceled invoices (InvoiceNo starting with "C")
 ecommerce_retail = ecommerce_retail[
-    ~ecommerce_retail["InvoiceNo"].str.startswith("C")
-]
+    ~ecommerce_retail["InvoiceNo"].str.startswith("C")]
 
 # 2. Remove negative quantity transactions
 ecommerce_retail = ecommerce_retail[
-    ecommerce_retail["Quantity"] > 0
-]
+    ecommerce_retail["Quantity"] > 0]
 
 # 3. Remove negative unit prices
 ecommerce_retail = ecommerce_retail[
-    ecommerce_retail["UnitPrice"] > 0
-]
+    ecommerce_retail["UnitPrice"] > 0]
 ```
 
 ### Business Logic
@@ -363,14 +360,12 @@ msno.matrix(ecommerce_retail)
 # Standardize missing formats
 ecommerce_retail["CustomerID"] = (
     ecommerce_retail["CustomerID"]
-    .replace(["nan", "", " "], np.nan)
-)
+    .replace(["nan", "", " "], np.nan))
 
 # Missing value summary
 missing_summary = pd.DataFrame({
     "volume": ecommerce_retail.isnull().sum(),
-    "%": (ecommerce_retail.isnull().sum() / ecommerce_retail.shape[0]) * 100
-})
+    "%": (ecommerce_retail.isnull().sum() / ecommerce_retail.shape[0]) * 100})
 
 print(missing_summary)
 ```
@@ -414,9 +409,7 @@ Duplicate rows were identified based on:
 
 ecommerce_duplicate = ecommerce_retail[
     ecommerce_retail.duplicated(
-        subset=["InvoiceNo", "StockCode", "InvoiceDate", "CustomerID"]
-    )
-]
+        subset=["InvoiceNo", "StockCode", "InvoiceDate", "CustomerID"])]
 ```
 
 If duplicates exist, they are handled in two cases:
@@ -444,10 +437,8 @@ If duplicates exist, they are handled in two cases:
 # Set the reference date for calculating Recency as December 31, 2011
 last_date = pd.to_datetime('12/31/2011')
 
-
 # Calculate the Revenue column
 ecommerce_retail['Revenue'] = ecommerce_retail['Quantity'] * ecommerce_retail['UnitPrice']
-
 
 # Create RFM df
 rfm = ecommerce_retail.groupby('CustomerID').agg(
@@ -455,7 +446,6 @@ rfm = ecommerce_retail.groupby('CustomerID').agg(
     Frequency=("InvoiceNo", "nunique"), # Count the number of transactions per customer
     Monetary=("Revenue", "sum") # Sum the total revenue per customer
 ).reset_index()
-
 
 #Check
 rfm.head()
@@ -474,21 +464,17 @@ rfm.head()
 # Create 1 row, 3 columns
 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-
 # Check outliers for the 'Recency' column
 sns.boxplot(data=rfm, x='Recency', ax=axes[0])
 axes[0].set_title('Recency Outliers')
-
 
 # Check outliers for the 'Frequency' column
 sns.boxplot(data=rfm, x='Frequency', ax=axes[1])
 axes[1].set_title('Frequency Outliers')
 
-
 # Check outliers for the 'Monetary' column
 sns.boxplot(data=rfm, x='Monetary', ax=axes[2])
 axes[2].set_title('Monetary Outliers')
-
 
 plt.tight_layout()
 plt.show()
@@ -523,14 +509,11 @@ rfm['Monetary'] = rfm['Monetary'].clip(upper=rfm['Monetary'].quantile(0.95))
 # Recency score: Lower values indicate more recent purchases, so assign higher scores to lower recency values
 rfm['R_Score'] = pd.qcut(rfm['Recency'], 5, labels = [5,4,3,2,1])
 
-
 # Frequency score: Higher values indicate more frequent purchases, so assign higher scores to higher frequency values
 rfm['F_Score'] = pd.qcut(rfm['Frequency'].rank(method='first'), 5, labels = [1,2,3,4,5])
 
-
 # Monetary score: Higher values indicate higher spending, so assign higher scores to higher monetary values
 rfm['M_Score'] = pd.qcut(rfm['Monetary'], 5, labels = [1,2,3,4,5])
-
 
 # Combine RFM scores into a single string to create the RFM segment
 rfm['RFM_Score'] = rfm['R_Score'].astype(str) + rfm['F_Score'].astype(str) + rfm['M_Score'].astype(str)
@@ -559,17 +542,14 @@ segmentation['RFM Score'] = segmentation['RFM Score'].str.strip()
 #Merge segmentation into rfm
 rfm = rfm.merge(segmentation, left_on="RFM_Score", right_on="RFM Score", how="left")
 
-
 # After merging, remove the RFM column to prevent confusion
 rfm = rfm.drop(columns=['RFM Score'])
-
 
 #Generates the combined RFM_Score by concatenating the individual Recency, Frequency, and Monetary scores into a single string.
 rfm['RFM_Score'] = rfm['R_Score'].astype(str) + rfm['F_Score'].astype(str) + rfm['M_Score'].astype(str)
 rfm
-
-
 ```
+
 [Out 14]:
 
 <img width="1050" alt="image" src="https://github.com/user-attachments/assets/4c8db269-ce57-4370-96a2-7d56e206799c" />
@@ -587,15 +567,12 @@ rfm
 sns.set(style="whitegrid")
 plt.rcParams["figure.figsize"] = (10, 6)
 
-
 # Define Custom Color Palette
 # Set palette
 Brand_color = "#4A90E2"
 
-
 def brand_palette(n, reverse=False):
     return sns.light_palette(Brand_color, n_colors=n, reverse=reverse)
-
 ```
 
 ### Group A. Customer Segmentation Overview
@@ -610,19 +587,14 @@ Visualize the number of customers in each RFM segment
 
 ```python
 # Customer Count by Segment
-
-
 order = rfm['Segment'].value_counts().index
 palette = brand_palette(len(order), reverse=True)
-
 
 ax = sns.countplot(
     data=rfm,
     x='Segment',
     order=order,
-    palette=palette
-)
-
+    palette=palette)
 
 # Add value labels
 for p in ax.patches:
@@ -631,9 +603,7 @@ for p in ax.patches:
         (p.get_x() + p.get_width()/2., p.get_height()),
         ha='center',
         va='bottom',
-        fontsize=9
-    )
-
+        fontsize=9)
 
 plt.title("Customer Count by Segment", fontsize=14, weight='bold')
 plt.xlabel("Segment")
@@ -642,6 +612,7 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 ```
+
 [Out 16]:
 
 <img width="1050" alt="image" src="https://github.com/user-attachments/assets/11411cd8-ce3a-4f3f-816b-2fb8ba1dc852" />
@@ -657,37 +628,27 @@ plt.show()
 
 #### 2. Revenue Contribution by Segment
 
-
 Calculate total revenue generated by each customer segment
-
 
 [In 17]:
 
 ```python
 # Revenue Contribution by Segment
-
-
 plt.figure(figsize=(12,6))
-
 
 segment_rev = (
     rfm.groupby('Segment')['Monetary']
     .sum()
     .sort_values(ascending=False)
-    .reset_index()
-)
-
+    .reset_index())
 
 palette = brand_palette(len(segment_rev), reverse=True)
-
 
 ax = sns.barplot(
     data=segment_rev,
     x='Segment',
     y='Monetary',
-    palette=palette
-)
-
+    palette=palette)
 
 for p in ax.patches:
     ax.annotate(
@@ -695,9 +656,7 @@ for p in ax.patches:
         (p.get_x() + p.get_width()/2., p.get_height()),
         ha='center',
         va='bottom',
-        fontsize=9
-    )
-
+        fontsize=9)
 
 plt.title("Total Revenue by Segment", fontsize=14, weight='bold')
 plt.xlabel("Segment")
@@ -707,6 +666,7 @@ plt.tight_layout()
 ax.ticklabel_format(style='plain', axis='y')
 plt.show()
 ```
+
 [Out 17]:
 
 <img width="1050" alt="image" src="https://github.com/user-attachments/assets/977d0c2a-f828-4b6d-9d86-9e40a0c75acf" />
@@ -728,27 +688,19 @@ Show the percentage contribution of each segment to total revenue
 
 ```python
 # Revenue Share by Segment (%)
-
-
 plt.figure(figsize=(12,6))
-
 
 segment_rev['Revenue_%'] = (
     segment_rev['Monetary'] /
-    segment_rev['Monetary'].sum()
-) * 100
-
+    segment_rev['Monetary'].sum()) * 100
 
 palette = brand_palette(len(segment_rev), reverse=True)
-
 
 ax = sns.barplot(
     data=segment_rev,
     x='Segment',
     y='Revenue_%',
-    palette=palette
-)
-
+    palette=palette)
 
 for p in ax.patches:
     ax.annotate(
@@ -756,9 +708,7 @@ for p in ax.patches:
         (p.get_x() + p.get_width()/2., p.get_height()),
         ha='center',
         va='bottom',
-        fontsize=9
-    )
-
+        fontsize=9)
 
 plt.title("Revenue Share by Segment (%)", fontsize=14, weight='bold')
 plt.xlabel("Segment")
@@ -787,28 +737,20 @@ Compare average Recency, Frequency, and Monetary values across segments
 
 ```python
 # Average RFM Metrics by Segment
-
-
 plt.figure(figsize=(10,6))
-
 
 segment_avg = (
     rfm.groupby('Segment')[['Recency','Frequency','Monetary']]
-    .mean()
-)
-
+    .mean())
 
 # Rename columns to RFM
 segment_avg.columns = ['R', 'F', 'M']
-
 
 sns.heatmap(
     segment_avg,
     annot=True,
     fmt=".1f",
-    cmap=sns.light_palette(Brand_color, as_cmap=True)
-)
-
+    cmap=sns.light_palette(Brand_color, as_cmap=True))
 
 plt.title("Average RFM Metrics by Segment", fontsize=14, weight='bold')
 plt.tight_layout()
@@ -841,29 +783,21 @@ Measure the average spending value of customers in each segment
 
 ```python
 # Average Revenue per Customer
-
-
 plt.figure(figsize=(12,6))
-
 
 rev_per_customer = (
     rfm.groupby('Segment')['Monetary']
     .mean()
     .sort_values(ascending=False)
-    .reset_index()
-)
-
+    .reset_index())
 
 palette = brand_palette(len(rev_per_customer), reverse=True)
-
 
 ax = sns.barplot(
     data=rev_per_customer,
     x='Segment',
     y='Monetary',
-    palette=palette
-)
-
+    palette=palette)
 
 for p in ax.patches:
     ax.annotate(
@@ -871,9 +805,7 @@ for p in ax.patches:
         (p.get_x() + p.get_width()/2., p.get_height()),
         ha='center',
         va='bottom',
-        fontsize=9
-    )
-
+        fontsize=9)
 
 plt.title("Average Revenue per Customer", fontsize=14, weight='bold')
 plt.xlabel("Segment")
@@ -916,13 +848,9 @@ Analyze the distribution of estimated customer lifetime value
 
 ```python
 # CLV Distribution
-
-
 plt.figure(figsize=(10,6))
 
-
 sns.histplot(rfm['CLV_Proxy'], bins=50, color=Brand_color)
-
 
 plt.title("Customer Lifetime Value (CLV) Distribution", fontsize=14, weight='bold')
 plt.xlabel("CLV Proxy")
@@ -951,18 +879,13 @@ Compare CLV distribution across different customer segments
 
 ```python
 # CLV by Segment (Boxplot Comparison)
-
-
 plt.figure(figsize=(12,6))
-
 
 sns.boxplot(
     x='Segment',
     y='CLV_Proxy',
     data=rfm,
-    color=Brand_color
-)
-
+    color=Brand_color)
 
 plt.xticks(rotation=45)
 plt.title("CLV Comparison Across Segments", fontsize=14, weight='bold')
@@ -973,7 +896,6 @@ plt.show()
 [Out 23]:
 
 <img width="1050" alt="image" src="https://github.com/user-attachments/assets/195e8320-34ae-471a-ad29-a411bfbd3592" />
-
 
 #### 📌 Insight
 
@@ -992,17 +914,13 @@ Identify the top 10% customers with the highest lifetime value
 [In 24]:
 
 ```python
-
 # Top 10% High CLV Customers Highlight
-
 
 # Define top 10% threshold
 threshold = rfm['CLV_Proxy'].quantile(0.90)
 top_customers = rfm[rfm['CLV_Proxy'] >= threshold]
 
-
 plt.figure(figsize=(12,7))
-
 
 # Background customers (smaller + lighter)
 plt.scatter(
@@ -1013,11 +931,9 @@ plt.scatter(
     color='grey'
 )
 
-
 # Scale bubble size properly for top customers
 scaled_size = (top_customers['CLV_Proxy'] /
                top_customers['CLV_Proxy'].max()) * 1500
-
 
 # Highlight Top 10%
 plt.scatter(
@@ -1027,19 +943,15 @@ plt.scatter(
     alpha=0.8,
     color=Brand_color,
     edgecolor='white',
-    linewidth=1
-)
-
+    linewidth=1)
 
 # Add median reference lines
 plt.axvline(rfm['Recency'].median(), linestyle='--', alpha=0.4)
 plt.axhline(rfm['Frequency'].median(), linestyle='--', alpha=0.4)
 
-
 plt.xlabel("Recency")
 plt.ylabel("Frequency")
 plt.title("Top 10% High CLV Customers", fontsize=16, weight='bold')
-
 
 plt.grid(alpha=0.2)
 plt.tight_layout()
@@ -1076,7 +988,6 @@ Simple approach: Higher Recency → Higher churn risk
 # Normalize Recency (scale between 0 and 1)
 rfm['R_scaled'] = rfm['Recency'] / rfm['Recency'].max()
 
-
 # Define churn score (higher Recency = higher risk)
 rfm['Churn_Score'] = rfm['R_scaled']
 ```
@@ -1089,13 +1000,9 @@ Visualize the distribution of churn risk among customers
 
 ```python
 # Churn Risk Distribution
-
-
 plt.figure(figsize=(10,6))
 
-
 sns.histplot(rfm['Churn_Score'], bins=40, color=Brand_color)
-
 
 plt.title("Churn Risk Distribution", fontsize=14, weight='bold')
 plt.xlabel("Churn Score")
@@ -1120,17 +1027,13 @@ plt.show()
 
 #### 8.2 Churn Risk by Customer Segment**
 
-
 Evaluate which segments have the highest risk of churn
 
 [In 27]:
 
 ```python
 # Churn Risk by Segment
-
-
 plt.figure(figsize=(12,6))
-
 
 sns.boxplot(
     x='Segment',
@@ -1174,21 +1077,15 @@ Identify the proportion of customers contributing to total revenue
 
 ```python
 # Pareto Analysis
-
-
 plt.figure(figsize=(12,6))
-
 
 rfm_sorted = rfm.sort_values(by='Monetary', ascending=False)
 rfm_sorted['Cum_Percent'] = (
     rfm_sorted['Monetary'].cumsum() /
-    rfm_sorted['Monetary'].sum()
-)
-
+    rfm_sorted['Monetary'].sum())
 
 plt.plot(rfm_sorted['Cum_Percent'].values, color=Brand_color)
 plt.axhline(y=0.8, linestyle='--')
-
 
 plt.title("Pareto Analysis of Revenue Contribution - Cumulative Revenue", fontsize=14, weight='bold')
 plt.xlabel("Customers Ranked by Revenue")
@@ -1218,19 +1115,14 @@ Visualize customer behavior based on Recency, Frequency, and Monetary values
 
 ```python
 # RFM Distribution Bubble Chart
-
-
 plt.figure(figsize=(12,6))
-
 
 plt.scatter(
     rfm['Recency'],
     rfm['Frequency'],
     s=rfm['Monetary']/10,
     alpha=0.4,
-    color=Brand_color
-)
-
+    color=Brand_color)
 
 plt.title("RFM Customer Behavior Distribution", fontsize=14, weight='bold')
 plt.xlabel("Recency")
@@ -1263,70 +1155,45 @@ Helps identify high-value segments that generate disproportionate revenue
 
 ```python
 from adjustText import adjust_text
-
-
 sns.set(style="whitegrid")
-
 
 # Segment Summary
 segment_summary = (
     rfm.groupby('Segment')
     .agg(Customer_Count=('CustomerID','count'),
          Revenue=('Monetary','sum'))
-    .reset_index()
-)
-
+    .reset_index())
 
 segment_summary['Customer_Share'] = segment_summary['Customer_Count'] / segment_summary['Customer_Count'].sum()
 segment_summary['Revenue_Share'] = segment_summary['Revenue'] / segment_summary['Revenue'].sum()
 
-
 bubble_size = segment_summary['Revenue'] / segment_summary['Revenue'].max() * 2000
-
-
-
 
 # Segment Priority Matrix
 plt.figure(figsize=(12,8))
 
-
 x = segment_summary['Customer_Share'] * 100
 y = segment_summary['Revenue_Share'] * 100
-
-
 plt.scatter(x, y, s=bubble_size, alpha=0.7, color="#2E86C1")
-
-
-
 
 # Labels
 texts = [
     plt.text(x[i], y[i], segment_summary['Segment'][i], fontsize=10)
-    for i in range(len(segment_summary))
-]
-
+    for i in range(len(segment_summary))]
 
 adjust_text(texts)
-
-
-
 
 # Quadrant reference lines
 plt.axhline(y.mean(), linestyle='--', alpha=0.6)
 plt.axvline(x.mean(), linestyle='--', alpha=0.6)
-
-
-
 
 # Axis & Title
 plt.xlabel("Customer Share (%)")
 plt.ylabel("Revenue Share (%)")
 plt.title("Segment Priority Matrix", fontsize=16, weight='bold')
 
-
 plt.xlim(0,22)
 plt.ylim(0,55)
-
 
 plt.tight_layout()
 plt.show()
